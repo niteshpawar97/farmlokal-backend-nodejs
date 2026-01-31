@@ -8,12 +8,8 @@ export async function apiBWebhook(req: Request, res: Response) {
     return res.status(400).json({ error: "Missing event ID" });
   }
 
-  try {
-    await processWebhookEvent(eventId, req.body);
+  await processWebhookEvent(eventId, req.body);
 
-    // Respond fast (important for retries)
-    res.status(200).json({ status: "ok" });
-  } catch (err) {
-    res.status(500).json({ error: "Webhook processing failed" });
-  }
+  // Respond fast (important for retries)
+  res.status(200).json({ status: "ok" });
 }
