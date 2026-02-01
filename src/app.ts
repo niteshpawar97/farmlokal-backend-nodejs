@@ -1,9 +1,11 @@
 import express from "express";
 import router from "./routes";
 import { redis } from "./config/redis";
+import { apiRateLimiter } from "./middlewares/rateLimit.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 const app = express();
 
+app.set("trust proxy", 1);
 app.use(express.json());
 
 app.get("/health", async (req, res) => {
@@ -20,6 +22,9 @@ app.get("/health", async (req, res) => {
     });
   }
 });
+
+// Apply rate limiting globally
+app.use(apiRateLimiter);
 
 app.use(router);
 app.use(errorHandler);
