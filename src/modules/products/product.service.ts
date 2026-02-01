@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import { redis } from "../../config/redis";
+import { env } from "../../config/env";
 import { fetchProducts } from "./product.repo";
+import { trackCacheHit, trackCacheMiss } from "../metrics/metrics.service";
 
 export async function getProducts(query: any) {
   const cacheKey =
@@ -10,15 +12,17 @@ export async function getProducts(query: any) {
   const cached = await redis.get(cacheKey);
   if (cached) {
     console.log("⚡ Products cache HIT:", cacheKey);
+    trackCacheHit();
     return JSON.parse(cached);
   }
 
-    console.log("🗄️ Products cache MISS → DB query");
+  console.log("🗄️ Products cache MISS → DB query");
+  trackCacheMiss();
 
   const products = await fetchProducts(query);
 
-  // short TTL for freshness
-  await redis.setex(cacheKey, 30, JSON.stringify(products));
+  // TTL configurable via PRODUCT_CACHE_TTL env var (default: 30s)
+  await redis.setex(cacheKey, env.productCacheTtl, JSON.stringify(products));
 
   return products;
 }

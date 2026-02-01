@@ -12,5 +12,7 @@ export const env = {
   mysqlDb: process.env.MYSQL_DB || "",
   mysqlUser: process.env.MYSQL_USER || "",
   mysqlPassword: process.env.MYSQL_PASSWORD || "",
-  
+
+  // Cache TTL settings (in seconds)
+  productCacheTtl: parseInt(process.env.PRODUCT_CACHE_TTL || "30", 10),
 }
